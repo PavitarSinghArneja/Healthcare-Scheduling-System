@@ -1,0 +1,1190 @@
+{
+  "name": "Outliers - Register & Login",
+  "nodes": [
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{$('Register').first().json.body.email }}",
+                    "rightValue": "={{ $json.Email }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "80219fe5-e596-4058-b6ca-1f5ec53882c7"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "948ac0e7-6541-412e-b7e5-9576decb9305",
+                    "leftValue": "={{$('Register').first().json.body.email }}",
+                    "rightValue": "={{ $json.Email }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEquals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        440,
+        0
+      ],
+      "id": "9f570750-14a6-4ab0-9908-ef840ce781e0",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "650f8110-83d7-428a-b0fa-664708d357d1",
+              "leftValue": "={{ $json.Email }}",
+              "rightValue": "={{ $('Login').item.json.body.email }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "96614496-606b-4479-91af-15f6fbdb3339",
+              "leftValue": "={{ $json['otp '] }}",
+              "rightValue": "={{ $('Login').item.json.body.otp }}",
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        440,
+        460
+      ],
+      "id": "bbd2e254-12bc-409a-9f97-0dd195aa3ed5",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "email already registered",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        700,
+        -80
+      ],
+      "id": "3a561a09-27f0-42d9-a48b-e395f21de031",
+      "name": "Email Already Exists"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "15bFeCcrHjpyyKQoj84LbWJYyKDtbAVe-3p7xwauuavA",
+          "mode": "list",
+          "cachedResultName": "Website DB: Users",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15bFeCcrHjpyyKQoj84LbWJYyKDtbAVe-3p7xwauuavA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "User",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15bFeCcrHjpyyKQoj84LbWJYyKDtbAVe-3p7xwauuavA/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Email",
+              "lookupValue": "={{ $json.body.email }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        220,
+        0
+      ],
+      "id": "809c67c2-cfc3-4a8b-8d6b-0c6da9ddb9ea",
+      "name": "Look For Existing User Email",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "aSaXGAiTi2elcm1q",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "15bFeCcrHjpyyKQoj84LbWJYyKDtbAVe-3p7xwauuavA",
+          "mode": "list",
+          "cachedResultName": "Website DB: Users",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15bFeCcrHjpyyKQoj84LbWJYyKDtbAVe-3p7xwauuavA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "User",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15bFeCcrHjpyyKQoj84LbWJYyKDtbAVe-3p7xwauuavA/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "user_id": "={{ $('Register').item.json.body.user_id }}",
+            "Email": "={{ $('Register').item.json.body.email }}",
+            "Name ": "={{ $('Register').item.json.body.name }}",
+            "otp ": "={{ $('Register').item.json.body.otp }}",
+            "created_at": "={{ $('Register').item.json.body.created_at }}",
+            "current_role": "={{ $('Register').item.json.body.current_role }}",
+            "target_role": "={{ $('Register').item.json.body.target_role }}",
+            "skills ": "={{ $('Register').item.json.body.skills }}",
+            "bio": "={{ $('Register').item.json.body.bio }}",
+            "location": "={{ $('Register').item.json.body.location }}",
+            "career_goals": "={{ $('Register').item.json.body.career_goals }}",
+            "profile_complete ": "={{ $('Register').item.json.body.profile_complete }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "user_id",
+              "displayName": "user_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Name ",
+              "displayName": "Name ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "otp ",
+              "displayName": "otp ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "current_role",
+              "displayName": "current_role",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "target_role",
+              "displayName": "target_role",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "skills ",
+              "displayName": "skills ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "bio",
+              "displayName": "bio",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "location",
+              "displayName": "location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "career_goals",
+              "displayName": "career_goals",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "profile_complete ",
+              "displayName": "profile_complete ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1100,
+        100
+      ],
+      "id": "b05b147a-8185-413a-82b4-6f3b35b766df",
+      "name": "Register Details",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "aSaXGAiTi2elcm1q",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Register').item.json.body.email }}",
+        "subject": "Your Outliers OTP Code",
+        "message": "=<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;\">\n  <h2 style=\"color: #8B5CF6;\">Welcome to Outliers!</h2>\n  <p>Hi {{ $('Register').item.json.body.name }} ,</p>\n  <p>Your verification code is:</p>\n  <div style=\"background: #f8f9fa; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;\">\n    <h1 style=\"color: #8B5CF6; font-size: 32px; margin: 0;\">{{ $('Register').item.json.body.otp }}</h1>\n  </div>\n  <p>Best regards,<br>The Outliers Team</p>\n</div>\n",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        900,
+        100
+      ],
+      "id": "d7a5f51b-c8be-414d-8c8b-3f99f249b091",
+      "name": "Send OTP",
+      "webhookId": "ab81e984-b482-4cf2-8f3d-695f2b33320a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "JkJKNhUgR7XQPhZV",
+          "name": "alphaautumn@"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "a5bc2a96-fb8b-4dde-b7a0-d562b93fbd7d",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "8ca9a564-7bf2-4a4f-8383-2ed8609c4a6c",
+      "name": "Register",
+      "webhookId": "a5bc2a96-fb8b-4dde-b7a0-d562b93fbd7d"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bf9c8b45-6f1a-4024-b173-a6ccc01aa34f",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -20,
+        460
+      ],
+      "id": "81612aa8-e677-4bab-814c-08277d03e7ef",
+      "name": "Login",
+      "webhookId": "bf9c8b45-6f1a-4024-b173-a6ccc01aa34f"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "15bFeCcrHjpyyKQoj84LbWJYyKDtbAVe-3p7xwauuavA",
+          "mode": "list",
+          "cachedResultName": "Website DB: Users",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15bFeCcrHjpyyKQoj84LbWJYyKDtbAVe-3p7xwauuavA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "User",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15bFeCcrHjpyyKQoj84LbWJYyKDtbAVe-3p7xwauuavA/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Email",
+              "lookupValue": "={{ $json.body.email }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        220,
+        460
+      ],
+      "id": "d1fcee13-3db7-4dad-a292-fc1c0bac773a",
+      "name": "Look For Email & OTP Details",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "aSaXGAiTi2elcm1q",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "Credentials Match",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        700,
+        420
+      ],
+      "id": "08a7df6a-e800-418f-a83c-b0fd7168817a",
+      "name": "Login True (Creds Match)"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "Credentials Do Not Match",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        700,
+        600
+      ],
+      "id": "e0cca29f-87aa-4fb2-ac33-9f7a152c1141",
+      "name": "Login False (Creds Don't Match)"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "=Welcome to The Outliers <3 Please save it as it's your permanent password. ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        700,
+        100
+      ],
+      "id": "b80a6c4b-d1d9-4fc1-ab8e-b87132371e54",
+      "name": "Display Msg"
+    },
+    {
+      "parameters": {
+        "content": "## Old Website",
+        "height": 940,
+        "width": 1580
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -220,
+        -140
+      ],
+      "typeVersion": 1,
+      "id": "bbee1ec0-9e45-4193-9c93-6011badf30c3",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{$('Register_BS').first().json.body.email }}",
+                    "rightValue": "={{ $json.Email }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "80219fe5-e596-4058-b6ca-1f5ec53882c7"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "948ac0e7-6541-412e-b7e5-9576decb9305",
+                    "leftValue": "={{$('Register_BS').first().json.body.email }}",
+                    "rightValue": "={{ $json.Email }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEquals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        2180,
+        0
+      ],
+      "id": "0f3840dd-1c57-41ac-b9e2-9dd6394d9dc1",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "650f8110-83d7-428a-b0fa-664708d357d1",
+              "leftValue": "={{ $json.Email }}",
+              "rightValue": "={{ $('Login_BS').item.json.body.email }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "96614496-606b-4479-91af-15f6fbdb3339",
+              "leftValue": "={{ $json['otp '] }}",
+              "rightValue": "={{ $('Login_BS').item.json.body.otp }}",
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2180,
+        460
+      ],
+      "id": "d43be814-cc69-477e-b33b-882d574b9ce8",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "content": "## New Website",
+        "height": 960,
+        "width": 1640,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1520,
+        -160
+      ],
+      "typeVersion": 1,
+      "id": "a7133ddc-5ba5-4041-baf8-2866872ca790",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "a5bc2a96-fb8b-4dde-b7a0-d562b93fbd7d",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        1740,
+        0
+      ],
+      "id": "32427990-2893-463a-bcd3-9158798b081a",
+      "name": "Register_BS",
+      "webhookId": "a5bc2a96-fb8b-4dde-b7a0-d562b93fbd7d"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bf9c8b45-6f1a-4024-b173-a6ccc01aa34f",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        1720,
+        460
+      ],
+      "id": "e2b3af09-f959-492d-897b-8e0c3e2c405a",
+      "name": "Login_BS",
+      "webhookId": "bf9c8b45-6f1a-4024-b173-a6ccc01aa34f"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "15bFeCcrHjpyyKQoj84LbWJYyKDtbAVe-3p7xwauuavA",
+          "mode": "list",
+          "cachedResultName": "Website DB: Users",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15bFeCcrHjpyyKQoj84LbWJYyKDtbAVe-3p7xwauuavA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1611591326,
+          "mode": "list",
+          "cachedResultName": "users_buildspace",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15bFeCcrHjpyyKQoj84LbWJYyKDtbAVe-3p7xwauuavA/edit#gid=1611591326"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Email",
+              "lookupValue": "={{ $json.body.email }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1960,
+        0
+      ],
+      "id": "d5169d39-ba1a-4bf2-b14f-ec3b73a04760",
+      "name": "Existing?",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "aSaXGAiTi2elcm1q",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "email already registered",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2440,
+        -80
+      ],
+      "id": "e1cc5e21-47a3-48d7-a5b6-ac6d15e2e06d",
+      "name": "Exists"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "=Welcome to The Outliers <3 Please save it as it's your permanent password. ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2440,
+        100
+      ],
+      "id": "783509d2-47ab-4caa-84d3-b49ec2355e05",
+      "name": "Welcome Msg"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Register_BS').item.json.body.email }}",
+        "subject": "Your Outliers OTP Code",
+        "message": "=<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;\">\n  <h2 style=\"color: #8B5CF6;\">Welcome to The Outliers!</h2>\n  <p>Hi {{ $('Register_BS').item.json.body.name }} ,</p>\n  <p>Your permanent password:</p>\n  <div style=\"background: #f8f9fa; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;\">\n    <h1 style=\"color: #8B5CF6; font-size: 32px; margin: 0;\">{{ $('Register_BS').item.json.body.password }}</h1>\n  </div>\n  <p>Best regards,<br>The Outliers Team</p>\n</div>\n",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2640,
+        100
+      ],
+      "id": "79e9fc99-38b8-4ea9-9e6b-4aa8c57ea89d",
+      "name": "Send Pass",
+      "webhookId": "ab81e984-b482-4cf2-8f3d-695f2b33320a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "JkJKNhUgR7XQPhZV",
+          "name": "alphaautumn@"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "15bFeCcrHjpyyKQoj84LbWJYyKDtbAVe-3p7xwauuavA",
+          "mode": "list",
+          "cachedResultName": "Website DB: Users",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15bFeCcrHjpyyKQoj84LbWJYyKDtbAVe-3p7xwauuavA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1611591326,
+          "mode": "list",
+          "cachedResultName": "users_buildspace",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15bFeCcrHjpyyKQoj84LbWJYyKDtbAVe-3p7xwauuavA/edit#gid=1611591326"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $('Register_BS').item.json.body.email }}",
+            "Name": "={{ $('Register_BS').item.json.body.name }}",
+            "Whatsapp": "={{ $('Register_BS').item.json.body.whatsapp }}",
+            "LinkedIn": "={{ $('Register_BS').item.json.body.linkedin }}",
+            "College": "={{ $('Register_BS').item.json.body.college }}",
+            "Course": "={{ $('Register_BS').item.json.body.course }}",
+            "City": "={{ $('Register_BS').item.json.body.city }}",
+            "Age": "={{ $('Register_BS').item.json.body.age }}",
+            "Gender": "={{ $('Register_BS').item.json.body.gender }}",
+            "Password": "={{ $('Register_BS').item.json.body.password }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Whatsapp",
+              "displayName": "Whatsapp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "LinkedIn",
+              "displayName": "LinkedIn",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "College",
+              "displayName": "College",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Course",
+              "displayName": "Course",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "City",
+              "displayName": "City",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Age",
+              "displayName": "Age",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Gender",
+              "displayName": "Gender",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Password",
+              "displayName": "Password",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        2840,
+        100
+      ],
+      "id": "91aa2778-91ec-4ba3-a407-e2094a740196",
+      "name": "Store Details",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "aSaXGAiTi2elcm1q",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "15bFeCcrHjpyyKQoj84LbWJYyKDtbAVe-3p7xwauuavA",
+          "mode": "list",
+          "cachedResultName": "Website DB: Users",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15bFeCcrHjpyyKQoj84LbWJYyKDtbAVe-3p7xwauuavA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1611591326,
+          "mode": "list",
+          "cachedResultName": "users_buildspace",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15bFeCcrHjpyyKQoj84LbWJYyKDtbAVe-3p7xwauuavA/edit#gid=1611591326"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Email",
+              "lookupValue": "={{ $json.body.email }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1960,
+        460
+      ],
+      "id": "44304ed7-0091-43e8-a262-1c5d5dce4887",
+      "name": "Look For Email & Pass Combo",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "aSaXGAiTi2elcm1q",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "Credentials Match",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2440,
+        420
+      ],
+      "id": "3a0ca3f2-01fe-487d-bf9a-4d0caf69efc0",
+      "name": "Login Yes"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "Credentials Do Not Match",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2440,
+        600
+      ],
+      "id": "e2ed4960-6d94-46a1-aa47-594cf7802461",
+      "name": "Login Failed"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Email Already Exists",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Display Msg",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Login True (Creds Match)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Login False (Creds Don't Match)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Look For Existing User Email": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Register Details": {
+      "main": [
+        []
+      ]
+    },
+    "Send OTP": {
+      "main": [
+        [
+          {
+            "node": "Register Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Register": {
+      "main": [
+        [
+          {
+            "node": "Look For Existing User Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Login": {
+      "main": [
+        [
+          {
+            "node": "Look For Email & OTP Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Look For Email & OTP Details": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Display Msg": {
+      "main": [
+        [
+          {
+            "node": "Send OTP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Exists",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Welcome Msg",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Login Yes",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Login Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Register_BS": {
+      "main": [
+        [
+          {
+            "node": "Existing?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Login_BS": {
+      "main": [
+        [
+          {
+            "node": "Look For Email & Pass Combo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Existing?": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Welcome Msg": {
+      "main": [
+        [
+          {
+            "node": "Send Pass",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Pass": {
+      "main": [
+        [
+          {
+            "node": "Store Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Look For Email & Pass Combo": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "76ec8636-cab8-4fc6-b6b8-d50cc58f87d4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cf9c2e525e453214885f3512ffdb4b61472e916558550adfb7420c548079e731"
+  },
+  "id": "0I3wy1gy3pJJEEpY",
+  "tags": []
+}

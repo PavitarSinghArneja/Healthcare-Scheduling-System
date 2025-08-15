@@ -1,0 +1,631 @@
+{
+  "name": "AI Appointment Scheduling Assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        20,
+        -140
+      ],
+      "id": "ed4a6fc8-3ee5-4fc2-8c85-303f59caab21",
+      "name": "When chat message received",
+      "webhookId": "YOUR_WEBHOOK_ID"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a virtual appointment scheduling assistant. Help users book, reschedule, or cancel consultation calls.\nAll bookings are managed via Google Calendar, and every interaction is logged in a Google Sheet.\n\n🕒 Availability\n• Monday to Friday only\n• Between 11:00 AM – 2:00 PM IST\n• Each session is exactly 1 hour\n\n⚙️ Tools Available\nTool Name\tPurpose\nNew\tCreate a new Google Calendar event\nUpdate\tReschedule a Google Calendar event (uses event ID)\nCancel\tCancel a Google Calendar event (uses event ID)\nFetch\tRetrieve user record from Google Sheet using phone number\nNewAppend\tAdd a new booking row to the Google Sheet\nSheetUpdate\tUpdate an existing row in the Google Sheet (reschedule/cancel)\nGmail\tSend appointment/reschedule/cancellation emails to users\nDate & Time\tParse natural language like “tomorrow at noon” or “1h from now”\n1. Booking a Consultation\nIf the user wants to book a session:\n• Collect the following details in one message:\n • Full Name\n • Phone Number\n • Email Address\n • Preferred Date and Time (in natural language)\n\n• Parse date/time using Date & Time\n• Validate the slot (must be Mon–Fri, 11AM–2PM IST)\n• If valid:\n • Use New to create the calendar event\n • Capture the event_id from the created event\n • Use Gmail to send confirmation and calendar invite\n • Use NewAppend to log booking details in the Google Sheet:\n  – rescheduled? = FALSE\n  – cancelled? = FALSE\n  – event_id = [captured from calendar]\n\n✅ Respond:\n“Your appointment with Tavs is confirmed for [Date] at [Time]. We've sent you a calendar invite to your email.”\n\n2. Rescheduling an Appointment\nIf the user wants to reschedule:\n• Ask for their registered Phone Number\n• Use Fetch to find the matching row and retrieve the event_id\n• Ask for the new preferred date and time\n• Parse using Date & Time, validate it\n• Use Update to reschedule the Google Calendar event using event_id\n• Use Gmail to notify the user of the rescheduled appointment\n• Use SheetUpdate to update the sheet:\n – rescheduled? = TRUE\n – reschedule_date = [new date]\n – reschedule_time = [new time]\n\n✅ Respond:\n“Your appointment has been successfully rescheduled to [New Date] at [New Time]. We’ve updated your invite.”\n\n3. Cancelling an Appointment\nIf the user wants to cancel:\n• Ask for their registered Phone Number\n• Use Fetch to locate their row and get the event_id\n• Use Cancel to delete the calendar event using the event_id\n• Use Gmail to send a cancellation email\n• Use SheetUpdate to update the sheet:\n – cancelled? = TRUE\n\n✅ Respond:\n“Your appointment has been cancelled. You can rebook any time!”\n\n✅ General Notes\n• Always confirm intent before proceeding\n• Only accept date/time within Mon–Fri, 11AM–2PM IST\n• Always use Date & Time for understanding natural date phrases\n• Be polite, clear, and helpful throughout the chat"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        240,
+        -140
+      ],
+      "id": "48620faf-34aa-4ad0-8163-4e7b57f040a0",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        80,
+        260
+      ],
+      "id": "7772eaa6-f58a-4759-b9cd-eb2111df69d1",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "YOUR_GEMINI_CREDENTIAL_ID",
+          "name": "Google Gemini API account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        240,
+        260
+      ],
+      "id": "90dc75d1-41e0-44eb-8c89-a90d058b8254",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Appointment Records",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "phone_no",
+              "lookupValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('values0_Value', ``, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.6,
+      "position": [
+        740,
+        160
+      ],
+      "id": "b145ed46-6af5-4981-9785-f6cf62e71353",
+      "name": "Fetch",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets OAuth2 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "your-calendar@example.com",
+          "mode": "list",
+          "cachedResultName": "your-calendar@example.com"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "additionalFields": {
+          "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Description', ``, 'string') }}",
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        380,
+        160
+      ],
+      "id": "d1f22ffb-ebe1-4b88-8624-caef028d0f1b",
+      "name": "New"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "calendar": {
+          "__rl": true,
+          "value": "your-calendar@example.com",
+          "mode": "list",
+          "cachedResultName": "your-calendar@example.com"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "updateFields": {
+          "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+          "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        500,
+        160
+      ],
+      "id": "701f3bdf-2002-43b5-8b2a-f908d13e7b96",
+      "name": "Update"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "value": "your-calendar@example.com",
+          "mode": "list",
+          "cachedResultName": "your-calendar@example.com"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        620,
+        160
+      ],
+      "id": "6f8c608c-1b29-4a9f-b547-62fec7490dbf",
+      "name": "Cancel"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', ``, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        1140,
+        160
+      ],
+      "id": "ad4966c4-e8cf-4ae1-be7f-6b51b031e296",
+      "name": "Gmail",
+      "webhookId": "YOUR_GMAIL_WEBHOOK_ID"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTimeTool",
+      "typeVersion": 2,
+      "position": [
+        1280,
+        160
+      ],
+      "id": "a531c63e-1520-4d36-a315-ece2313bed5e",
+      "name": "Date & Time"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Appointment Records",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('name', ``, 'string') }}",
+            "phone_no": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('phone_no', ``, 'string') }}",
+            "email": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('email', ``, 'string') }}",
+            "appointment_date": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('appointment_date', ``, 'string') }}",
+            "appointment_time": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('appointment_time', ``, 'string') }}",
+            "rescheduled?": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('rescheduled_', ``, 'string') }}",
+            "reschedule_date": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('reschedule_date', ``, 'string') }}",
+            "reschedule_time": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('reschedule_time', ``, 'string') }}",
+            "cancelled?": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('cancelled_', ``, 'string') }}",
+            "event_id": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('event_id', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone_no",
+              "displayName": "phone_no",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "appointment_date",
+              "displayName": "appointment_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "appointment_time",
+              "displayName": "appointment_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "rescheduled?",
+              "displayName": "rescheduled?",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reschedule_date",
+              "displayName": "reschedule_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reschedule_time",
+              "displayName": "reschedule_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "cancelled?",
+              "displayName": "cancelled?",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "event_id",
+              "displayName": "event_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.6,
+      "position": [
+        860,
+        160
+      ],
+      "id": "e7f2b9ce-8800-4d1f-863a-2975662cb4bf",
+      "name": "NewAppend",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets OAuth2 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Appointment Records",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "phone_no": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('phone_no__using_to_match_', ``, 'string') }}",
+            "rescheduled?": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('rescheduled_', ``, 'string') }}",
+            "reschedule_date": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('reschedule_date', ``, 'string') }}",
+            "reschedule_time": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('reschedule_time', ``, 'string') }}",
+            "event_id": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('event_id', ``, 'string') }}",
+            "cancelled?": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('cancelled_', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "phone_no"
+          ],
+          "schema": [
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "phone_no",
+              "displayName": "phone_no",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "appointment_date",
+              "displayName": "appointment_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "appointment_time",
+              "displayName": "appointment_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "rescheduled?",
+              "displayName": "rescheduled?",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reschedule_date",
+              "displayName": "reschedule_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reschedule_time",
+              "displayName": "reschedule_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "cancelled?",
+              "displayName": "cancelled?",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "event_id",
+              "displayName": "event_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.6,
+      "position": [
+        1000,
+        160
+      ],
+      "id": "6f4c03f7-c238-48b6-a910-b2b3c9997971",
+      "name": "SheetUpdate",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets OAuth2 account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cancel": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date & Time": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NewAppend": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SheetUpdate": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "WORKFLOW_VERSION_ID",
+  "meta": {
+    "instanceId": "YOUR_N8N_INSTANCE_ID"
+  },
+  "id": "WORKFLOW_ID",
+  "tags": []
+}

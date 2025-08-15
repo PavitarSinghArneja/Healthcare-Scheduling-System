@@ -1,0 +1,284 @@
+{
+  "name": "MenuCraft Lead Form",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "3cf4688b-7cf9-464a-9529-31bd4cb95e97",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "4dc4ec2a-b7d8-4d2c-8787-103595f653f7",
+      "name": "Webhook",
+      "webhookId": "3cf4688b-7cf9-464a-9529-31bd4cb95e97"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1qckVCEK4XlzNkYU6iOPvOow5VovmBd9i-9M36a96eco",
+          "mode": "list",
+          "cachedResultName": "Restaurants",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qckVCEK4XlzNkYU6iOPvOow5VovmBd9i-9M36a96eco/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qckVCEK4XlzNkYU6iOPvOow5VovmBd9i-9M36a96eco/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "restaurant_id": "={{ Math.random().toString(36).substr(2, 9) }}",
+            "email": "={{ $json.body.email }}",
+            "phone": "={{ $json.body.contactNumber }}",
+            "address": "={{ $json.body.address }}",
+            "created_at": "={{ $json.body.timestamp }}",
+            "owner_name": "={{ $json.body.ownerName }}",
+            "restaurant_name": "={{ $json.body.restaurantName }}",
+            "additional_info": "={{ $json.body.additionalInfo }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "restaurant_id",
+              "displayName": "restaurant_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "restaurant_name",
+              "displayName": "restaurant_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "owner_name",
+              "displayName": "owner_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "address",
+              "displayName": "address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "additional_info",
+              "displayName": "additional_info",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        220,
+        0
+      ],
+      "id": "c23ef21d-cb63-4d65-b302-9c0fabef777f",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "aSaXGAiTi2elcm1q",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "=Application Received - {{$json.restaurant_name}}\"",
+        "emailType": "text",
+        "message": "=Hi {{ $json.owner_name }},  \nThanks for your interest in our platform| We've received your application for {{ $json.restaurant_name }}.\n\nOur team will review and contact you within 24 hours.  \n\nBest regards, \nMenuCraft By ASAP AI",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        440,
+        -100
+      ],
+      "id": "229ace5b-2279-42a0-ab6a-baecf8985cbd",
+      "name": "Message Received",
+      "webhookId": "8b6af78c-a9f6-4165-8941-292724f17036",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "JkJKNhUgR7XQPhZV",
+          "name": "alphaautumn@"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "alphaautumn@gmail.com",
+        "subject": "=New Restaurant Application: {{$json.restaurant_name}}",
+        "emailType": "text",
+        "message": "=New restaurant wants to join the platform:  \n\nRestaurant: {{$json.restaurant_name}} \nOwner: {{$json.owner_name}} \nEmail: {{$json.email}} \nPhone: {{$json.phone}}  \n\nReview and approve in Google Sheets.",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        440,
+        80
+      ],
+      "id": "9c86cf51-edc8-4400-8044-1759e50a4594",
+      "name": "New Lead",
+      "webhookId": "2d9e5ff0-890b-43fc-8a96-2d6acf8d139e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "JkJKNhUgR7XQPhZV",
+          "name": "alphaautumn@"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "factually-popular-badger.ngrok-free.app",
+            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+            "content-length": "206",
+            "accept": "*/*",
+            "accept-encoding": "gzip, deflate, br, zstd",
+            "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
+            "content-type": "application/json",
+            "origin": "https://zp1v56uxy8rdx5ypatb0ockcb9tr6a-oci3--5173--96435430.local-credentialless.webcontainer-api.io",
+            "priority": "u=1, i",
+            "referer": "https://zp1v56uxy8rdx5ypatb0ockcb9tr6a-oci3--5173--96435430.local-credentialless.webcontainer-api.io/",
+            "sec-ch-ua": "\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"macOS\"",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "cross-site",
+            "x-forwarded-for": "2405:201:3009:828e:c40f:563e:648:fd1c",
+            "x-forwarded-host": "factually-popular-badger.ngrok-free.app",
+            "x-forwarded-proto": "https"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "ownerName": "aa",
+            "contactNumber": "1212",
+            "restaurantName": "pajo",
+            "address": "yoyooy",
+            "email": "pajo@gmail.com",
+            "additionalInfo": "",
+            "timestamp": "2025-07-22T08:36:18.436Z",
+            "source": "MenuCraft Get Started Form"
+          },
+          "webhookUrl": "https://factually-popular-badger.ngrok-free.app/webhook-test/3cf4688b-7cf9-464a-9529-31bd4cb95e97",
+          "executionMode": "test"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Message Received",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "New Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7341f30c-7fe3-4d23-9982-a1ee31fbc1ed",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cf9c2e525e453214885f3512ffdb4b61472e916558550adfb7420c548079e731"
+  },
+  "id": "CViTRDQgxGnsHP6D",
+  "tags": []
+}
